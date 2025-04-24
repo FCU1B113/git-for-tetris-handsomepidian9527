@@ -32,9 +32,71 @@ typedef struct
     char rotates[4][4][4];
 
 } Shape;
+Shape shape[7] = {
 
+    {// i
+     .shape = I,
+     .color = CYAN,
+     .size = 4,
+     .rotates = {
+         {{0, 1, 0, 0},
+          {0, 1, 0, 0},
+          {0, 1, 0, 0},
+          {0, 1, 0, 0}},
+         {{0, 0, 0, 0},
+          {1, 1, 1, 1},
+          {0, 0, 0, 0},
+          {0, 0, 0, 0}}
+        }
+    } ,
+    {
+        .shape = S,
+        .color = GREEN,
+        .size = 4,
+    }, {
+        .shape = J,
+        .color = BLUE,
+        .size = 4,
+    }, {
+        .shape = O,
+        .color = WHITE,
+        .size = 4,
+    } ,{
+        .shape = L,
+        .color = YELLOW,
+        .size = 4,
+    } ,{
+        .shape = T,
+        .color = PURPLE,
+        .size = 4,
+    }
+
+};
 int main()
 {
-
+    Color cur;
+    for (int i = 0; i < 1; i++)
+    {
+        for (int r = 0; r < 4; r++)
+        {
+            for (int s = 0; s < shape[i].size; s++)
+            {
+                for (int t = 0; t < shape[i].size; t++)
+                {
+                    if (shape[i].rotates[r][s][t] == 0)
+                    {
+                        cur = WHITE;
+                    }
+                    else
+                    {
+                        cur = shape[i].color;
+                    }
+                    printf("\033[%dm \033[0m", cur);
+                }
+                printf('\n');
+            }
+            printf('\n');
+        }
+    }
     return 0;
 }
