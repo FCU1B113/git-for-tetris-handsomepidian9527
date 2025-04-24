@@ -24,6 +24,15 @@ typedef enum
 
 } Color;
 
+typedef struct
+{
+    Shapeid shape;
+    Color color;
+    int size;
+    char rotates[4][4][4];
+
+} Shape;
+
 int main()
 {
 
