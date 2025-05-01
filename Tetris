@@ -1,5 +1,7 @@
 #include <stdio.h>
-
+#include <stdbool.h>
+#define CANVAS_WIDTH 10
+#define CANVAS_HEIGHT 20
 typedef enum
 {
     EMPTY = -1,
@@ -32,6 +34,24 @@ typedef struct
     char rotates[4][4][4];
 
 } Shape;
+typedef struct
+{
+    Color color;
+    Shapeid shape;
+    bool current;
+
+} Block;
+typedef struct Tetris
+{
+    int x;
+    int y;
+    int score;
+    int rotate;
+    int falltime;
+    Shapeid queue[4];
+
+} State;
+
 Shape shape[7] = {
 
     {// i
@@ -46,32 +66,54 @@ Shape shape[7] = {
          {{0, 0, 0, 0},
           {1, 1, 1, 1},
           {0, 0, 0, 0},
-          {0, 0, 0, 0}}
-        }
-    } ,
-    {
-        .shape = S,
-        .color = GREEN,
-        .size = 4,
-    }, {
-        .shape = J,
-        .color = BLUE,
-        .size = 4,
-    }, {
-        .shape = O,
-        .color = WHITE,
-        .size = 4,
-    } ,{
-        .shape = L,
-        .color = YELLOW,
-        .size = 4,
-    } ,{
-        .shape = T,
-        .color = PURPLE,
-        .size = 4,
-    }
+          {0, 0, 0, 0}},
+         {{0, 0, 0, 0},
+          {0, 0, 0, 0},
+          {1, 1, 1, 1},
+          {0, 0, 0, 0}},
+         {{0, 0, 1, 0},
+          {0, 0, 1, 0},
+          {0, 0, 1, 0},
+          {0, 0, 1, 0}}}},
+    {.shape = S, .color = GREEN, .size = 4, .rotates = {{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 1, 1, 0}, {1, 1, 0, 0}}, {{1, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}}, {{0, 0, 0, 0}, {0, 0, 1, 0}, {0, 0, 1, 1}, {0, 0, 0, 1}}, {{0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}},
+    {.shape = J, .color = BLUE, .size = 4, .rotates = {{{0, 1, 0, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}}, {{0, 1, 0, 0}, {0, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}}, {{0, 0, 0, 0}, {0, 1, 1, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}}, {{0, 0, 0, 0}, {0, 0, 0, 0}, {1, 1, 1, 0}, {0, 0, 1, 0}}}},
+    {.shape = O, .color = WHITE, .size = 4, .rotates = {
+                                                {{0, 0, 0, 0}, {0, 1, 1, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}},
+                                            }},
+    {.shape = L, .color = YELLOW, .size = 4, .rotates = {{{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}, {{0, 0, 0, 0}, {0, 1, 1, 1}, {0, 1, 0, 0}, {0, 0, 0, 0}}, {{0, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}}, {{0, 0, 0, 0}, {0, 0, 1, 0}, {1, 1, 1, 0}, {0, 0, 0, 0}}}
+
+    },
+    {.shape = T, .color = PURPLE, .size = 4, .rotates = {{{0, 0, 0, 0}, {0, 1, 0, 0}, {1, 1, 1, 0}, {0, 0, 0, 0}}, {{0, 1, 0, 0}, {0, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}}, {{0, 0, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}}, {{0, 0, 0, 0}, {0, 0, 1, 0}, {0, 1, 1, 0}, {0, 0, 1, 0}}}}
 
 };
+void setblock(Block *block, Color color, Shapeid shape, bool currnet)
+{
+    block->color = color;
+    block->shape = shape;
+    block->shape = shape;
+    block->current = currnet;
+}
+void resetblock(Block *block)
+{
+    block->color = BLACK;
+    block->shape = EMPTY;
+    block->current = false;
+}
+void printCanvas(Block canvas[CANVAS_HEIGHT][CANVAS_WIDTH], State *state)
+{
+    printf("\033[0;0H\n");
+    for (int i = 0; i < CANVAS_HEIGHT; i++)
+    {
+        printf("|");
+        for (int j = 0; j < CANVAS_WIDTH; j++)
+        {
+            printf("\033[%dm\u3000", canvas[i][j].color);
+        }
+        printf("\033[0m|\n");
+    }
+    return;
+}
+
 int main()
 {
     Color cur;
